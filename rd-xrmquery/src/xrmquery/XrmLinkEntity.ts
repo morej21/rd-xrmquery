@@ -18,21 +18,12 @@ export class XrmLinkEntity {
     }
     set LinkToEntityName(newName: string) {
         this.linkToEntityName = newName;
-        this.internalAlias = newName + "_" + Math.floor(Math.random() * 1000)
-    }
-    public get InternalAlias(): string {
-        if (this.internalAlias)
-            return this.internalAlias;
-        else
-            return "";
+
     }
     public Orders: XrmOrder[];
-    
-    private internalAlias: string | undefined;
     private linkToEntityName: string | undefined;
-
     constructor(linkFromEntityName: string, linkToEntityName: string, linkFromAttributeName: string, linkToAttributeName: string, joinOperator: JoinOperator) {
-        this.EntityAlias = linkToEntityName;
+        //this.EntityAlias = linkToEntityName;
         this.LinkFromEntityName = linkFromEntityName;
         this.LinkToEntityName = linkToEntityName;
         this.LinkFromAttributeName = linkFromAttributeName;

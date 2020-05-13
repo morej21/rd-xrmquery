@@ -8,7 +8,7 @@ import { XrmPageInfo } from './XrmPageInfo';
 
 export class XrmQuery {
     public EntityName: string;
-    public ColumnSet: XrmColumnSet = new XrmColumnSet(false);
+    public ColumnSet: XrmColumnSet
     public Criteria: XrmFilter;
     public Distinct: boolean
     public LinkEntities: XrmLinkEntity[];
@@ -18,6 +18,7 @@ export class XrmQuery {
 
     constructor(entityName: string) {
         this.EntityName = entityName;
+        this.ColumnSet = new XrmColumnSet(false);
         this.Criteria = new XrmFilter(LogicalOperator.And);
         this.Distinct = false;
         this.LinkEntities = [];
@@ -62,30 +63,35 @@ export class XrmQuery {
     }
     private getXmlAttributes(columnSet?: XrmColumnSet): string {
         let attributes: string = "";
-        if (columnSet) {
-            if (columnSet.AllColumns) {
-                attributes += "<all-attributes/>"
-            }
-            else if (columnSet.Columns) {
-                columnSet.Columns.forEach(c => {
-                    attributes += "<attribute"
-                    attributes += ` name='${c.Name}' `;
-                    if (this.isAggregate)
+
+        if (!columnSet || !columnSet.Columns || (!columnSet.AllColumns && columnSet.Columns.length == 0)) {
+            attributes += "<no-attrs/>"
+        }
+        else
+            if (columnSet) {
+                if (columnSet.AllColumns) {
+                    attributes += "<all-attributes/>"
+                }
+                else if (columnSet.Columns.length > 0) {
+                    columnSet.Columns.forEach(c => {
+                        attributes += "<attribute"
+                        attributes += ` name='${c.Name}' `;
                         if (c.Alias)
                             attributes += ` alias='${c.Alias}' `;
-                        else
-                            attributes += ` alias='${c.Name}' `;
-                    if (c.Aggregate)
-                        attributes += ` aggregate='${c.Aggregate}' `;
-                    if (this.isAggregate && !c.Aggregate) {
-                        attributes += " groupby='true' "
-                        if (c.DateGrouping)
-                            attributes += ` dategrouping = '${c.DateGrouping}' `;
-                    }
-                    attributes += " />";
-                });
+                        if (this.isAggregate)
+                            if (!c.Alias)
+                                attributes += ` alias='${c.Name}' `;
+                        if (c.Aggregate)
+                            attributes += ` aggregate='${c.Aggregate}' `;
+                        if (this.isAggregate && !c.Aggregate) {
+                            attributes += " groupby='true' "
+                            if (c.DateGrouping)
+                                attributes += ` dategrouping = '${c.DateGrouping}' `;
+                        }
+                        attributes += " />";
+                    });
+                }
             }
-        }
         return attributes;
     }
     private getXmlFilters(criteria: XrmFilter): string {
@@ -100,6 +106,13 @@ export class XrmQuery {
                         filters += `<condition attribute='${c.Field}' operator='${c.Operator}' value='${c.Data}' />`;
                     else if (c.Operator == ConditionOperator.Null || c.Operator == ConditionOperator.NotNull)
                         filters += `<condition attribute='${c.Field}' operator='${c.Operator}' />`;
+                    else if (c.Operator == ConditionOperator.In) {
+                        if (Array.isArray(c.Data)) {
+                            filters += `<condition attribute='${c.Field}' operator='${c.Operator}'>`;
+                            filters += c.Data.map(v => `<value>${encodeURIComponent(String.escapeXML(v))}</value>`).join("");
+                            filters += "</condition>"
+                        }
+                    }
                     else
                         filters += `<condition attribute='${c.Field}' operator='${c.Operator}' value='${encodeURIComponent(String.escapeXML(c.Data))}' />`;
                 })
@@ -117,7 +130,10 @@ export class XrmQuery {
         let xmlLinkEntities: string = "";
         if (linkEntities && linkEntities.length > 0) {
             linkEntities.forEach(l => {
-                xmlLinkEntities += `<link-entity name='${l.LinkToEntityName}' alias='${l.InternalAlias}' from='${l.LinkFromAttributeName}' to='${l.LinkToAttributeName}'  link-type='${l.JoinOperator}'>`;
+                xmlLinkEntities += `<link-entity name='${l.LinkToEntityName}'  from='${l.LinkFromAttributeName}' to='${l.LinkToAttributeName}'  link-type='${l.JoinOperator}'`
+                if (l.EntityAlias)
+                    xmlLinkEntities += ` alias='${l.EntityAlias}' `;
+                xmlLinkEntities += ">";
                 xmlLinkEntities += this.getXmlAttributes(l.ColumnSet);
                 xmlLinkEntities += this.getXmlFilters(l.LinkCriteria);
                 xmlLinkEntities += this.getXmlLinkEntities(l.LinkEntities); //recurse embedded linkentities

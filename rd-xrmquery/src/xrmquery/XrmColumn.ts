@@ -9,11 +9,11 @@ export class XrmColumn {
     constructor(name: string, alias: string);
     constructor(name: string, alias: string, aggregation: XrmAggregation);
     constructor(name?: string, alias?: string, aggregate?: XrmAggregation) {
-        if(name)
-        this.Name = name;
-        if(alias)
-        this.Alias = alias;
-        if (aggregate &&  aggregate.Aggregate)
+        if (name)
+            this.Name = name;
+        if (alias)
+            this.Alias = alias;
+        if (aggregate && aggregate.Aggregate)
             this.Aggregate = aggregate.Aggregate;
         if (aggregate && aggregate.DateGrouping)
             this.DateGrouping = aggregate.DateGrouping;

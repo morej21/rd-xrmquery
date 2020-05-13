@@ -1,6 +1,6 @@
 {
   "name": "rd-xrmquery",
-  "version": "1.0.2",
+  "version": "1.0.16",
   "description": "TypeScript version of Microsoft.Xrm.Sdk.QueryExpression",
   "main": "./lib/index.js",
   "types": "lib/index.d.ts",
@@ -8,7 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "lint": "tslint -c tslint.json src/**/*.ts",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "refreshVSToken" : "vsts-npm-auth -config .npmrc",
+    "refreshglobalVSToken" : "vsts-npm-auth -config C:\\Users\\laeremad\\AppData\\Roaming\\npm\\etc\\.npmrc"
   },
   "repository": {
     "type": "git",
@@ -26,8 +28,10 @@
   "license": "MIT",
   "dependencies": {
     "tslint": "^6.1.2",
-    "typescript": "^3.8.3"
+    "typescript": "^3.6.5"
   },
-  "files": ["lib/**/*"],
+  "files": [
+    "lib/**/*"
+  ],
   "typings": "./lib/index.d.ts"
 }

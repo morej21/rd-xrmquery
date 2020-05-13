@@ -10,7 +10,7 @@ export class XrmColumnSet {
     }
     static FromColumns(...columns: string[]): XrmColumnSet {
         let returnColumnSet = new XrmColumnSet(false);
-        returnColumnSet.Columns.push(...columns.map(c => new XrmColumn(c)));
+        returnColumnSet.Columns.push(...columns.map(c => new XrmColumn(c)));       
         return returnColumnSet
     }
     public Columns: XrmColumn[];

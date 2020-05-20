@@ -64,7 +64,7 @@ export class XrmQuery {
     private getXmlAttributes(columnSet?: XrmColumnSet): string {
         let attributes: string = "";
 
-        if (!columnSet || !columnSet.Columns || (!columnSet.AllColumns && columnSet.Columns.length == 0)) {
+        if ((!columnSet || !columnSet.Columns || (!columnSet.AllColumns && columnSet.Columns.length == 0)) && !this.Distinct) { //no attrs can not be used in conjunction with distinct = true
             attributes += "<no-attrs/>"
         }
         else
@@ -130,9 +130,13 @@ export class XrmQuery {
         let xmlLinkEntities: string = "";
         if (linkEntities && linkEntities.length > 0) {
             linkEntities.forEach(l => {
-                xmlLinkEntities += `<link-entity name='${l.LinkToEntityName}'  from='${l.LinkFromAttributeName}' to='${l.LinkToAttributeName}'  link-type='${l.JoinOperator}'`
+                xmlLinkEntities += `<link-entity name='${l.LinkToEntityName}'  from='${l.LinkFromAttributeName}' to='${l.LinkToAttributeName}'`
+                if(l.JoinOperator)
+                    xmlLinkEntities += ` link-type='${l.JoinOperator}' `;
                 if (l.EntityAlias)
                     xmlLinkEntities += ` alias='${l.EntityAlias}' `;
+                 if (l.Intersect)
+                    xmlLinkEntities += ` intersect='${l.Intersect}' `;
                 xmlLinkEntities += ">";
                 xmlLinkEntities += this.getXmlAttributes(l.ColumnSet);
                 xmlLinkEntities += this.getXmlFilters(l.LinkCriteria);

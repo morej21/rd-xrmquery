@@ -14,6 +14,7 @@ export class XrmQuery {
     public LinkEntities: XrmLinkEntity[];
     public Orders: XrmOrder[];
     public PageInfo: XrmPageInfo | undefined;
+    public TopCount: number = 0;
     private isAggregate: boolean = false;
 
     constructor(entityName: string) {
@@ -34,6 +35,9 @@ export class XrmQuery {
     }
     public GetFetchXml(): string {
         let fetchXml: string = "<fetch ";
+        if(this.TopCount > 0){
+            fetchXml += ` top='${this.TopCount}' `
+        }
         if (this.ColumnSet && !this.ColumnSet.AllColumns) {
             if (this.ColumnSet.Columns.filter(c => c.Aggregate).length > 0) {
                 this.isAggregate = true;
@@ -51,12 +55,14 @@ export class XrmQuery {
                 let cookiePart = decodeURIComponent(decodeURIComponent(this.PageInfo.PagingCookie.split('pagingcookie="')[1].split('"')[0]));
                 fetchXml += ` paging-cookie='${encodeURIComponent(String.escapeXML(cookiePart))}'`;
             }
+
         }
         fetchXml += ` distinct='${this.Distinct}' mapping='logical'>`;
         fetchXml += `<entity name='${this.EntityName}'>`;
         fetchXml += this.getXmlAttributes(this.ColumnSet); //attributes        
         fetchXml += this.getXmlLinkEntities(this.LinkEntities);//link-entities  
         fetchXml += this.getXmlFilters(this.Criteria);//filters
+        fetchXml += this.getXmlOrders(this.Orders);//orders
         fetchXml += "</entity>"
         fetchXml += "</fetch>";
         return fetchXml;
@@ -131,11 +137,11 @@ export class XrmQuery {
         if (linkEntities && linkEntities.length > 0) {
             linkEntities.forEach(l => {
                 xmlLinkEntities += `<link-entity name='${l.LinkToEntityName}'  from='${l.LinkFromAttributeName}' to='${l.LinkToAttributeName}'`
-                if(l.JoinOperator)
+                if (l.JoinOperator)
                     xmlLinkEntities += ` link-type='${l.JoinOperator}' `;
                 if (l.EntityAlias)
                     xmlLinkEntities += ` alias='${l.EntityAlias}' `;
-                 if (l.Intersect)
+                if (l.Intersect)
                     xmlLinkEntities += ` intersect='${l.Intersect}' `;
                 xmlLinkEntities += ">";
                 xmlLinkEntities += this.getXmlAttributes(l.ColumnSet);
@@ -145,5 +151,15 @@ export class XrmQuery {
             })
         }
         return xmlLinkEntities;
+    }
+    private getXmlOrders(orders: XrmOrder[]): string {
+        let xmlOrders = "";
+        orders.forEach(o => {
+            xmlOrders += `<order attribute="${o.AttributeName}" `
+            if (o.OrderType == OrderType.Descending)
+                xmlOrders += " descending='true' ";
+            xmlOrders += "/>";
+        })
+        return xmlOrders;
     }
 }

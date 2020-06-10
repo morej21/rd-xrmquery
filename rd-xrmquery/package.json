@@ -1,6 +1,6 @@
 {
   "name": "rd-xrmquery",
-  "version": "1.0.23",
+  "version": "1.0.25",
   "description": "TypeScript version of Microsoft.Xrm.Sdk.QueryExpression",
   "main": "./lib/index.js",
   "types": "lib/index.d.ts",

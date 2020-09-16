@@ -1,6 +1,6 @@
 {
   "name": "rd-xrmquery",
-  "version": "1.0.25",
+  "version": "1.0.27",
   "description": "TypeScript version of Microsoft.Xrm.Sdk.QueryExpression",
   "main": "./lib/index.js",
   "types": "lib/index.d.ts",
@@ -19,11 +19,12 @@
   "keywords": [
     "PowerApps",
     "XrmQuery",
-    "QueryExpression"
+    "QueryExpression",
+    "FetchXml"
   ],
   "author": {
     "name": "David Laeremans",
-    "url": "https://www.realdolmen.com"
+    "url": "https://github.com/morej21/rd-xrmquery"
   },
   "license": "MIT",
   "dependencies": {
